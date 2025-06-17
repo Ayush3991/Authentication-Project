@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import "./PageDetails.css";
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "./firebase";
+import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { db, storage } from "./firebase";
 import { getAuth } from "firebase/auth";
+import { ref, deleteObject } from "firebase/storage";
 
 function PageDetails() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ function PageDetails() {
   const [showFilterDropdown, setShowFilterDropdown] = useState(false); 
   const [isAdmin, setIsAdmin] = useState(false); 
 
-  // Fetch user data when component loads
+  // Fetch user data 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -97,6 +98,61 @@ function PageDetails() {
     setSearchTerm("");
   };
 
+  const handleEdit = (userId) => {
+    // EditForm page navigate with user ID
+    navigate(`/Edit/${userId}`);
+  };
+
+  const handleDelete = async (userId) => {
+    const confirmed = window.confirm("Are you sure you want to delete?");
+    
+    if (confirmed) {
+      try {
+        setLoading(true);
+        
+        // Find user data to get file URLs
+        const userToDelete = users.find(user => user.id === userId);
+        
+        if (userToDelete) {
+          // Delete files from Firebase Storage 
+          if (userToDelete.profilePhotoURL) {
+            try {
+              const profilePicRef = ref(storage, userToDelete.profilePhotoURL);
+              await deleteObject(profilePicRef);
+            } catch (error) {
+              console.error("Error deleting profile picture:", error);
+            }
+          }
+          
+          if (userToDelete.resumeURL) {
+            try {
+              const resumeRef = ref(storage, userToDelete.resumeURL);
+              await deleteObject(resumeRef);
+            } catch (error) {
+              console.error("Error deleting resume:", error);
+            }
+          }
+        }
+        
+        // Delete user document from Firestore
+        await deleteDoc(doc(db, "userSubmissions", userId));
+        
+        // Update local state
+        const updatedUsers = users.filter(user => user.id !== userId);
+        setUsers(updatedUsers);
+        setFilteredUsers(updatedUsers);
+        
+        alert("User deleted successfully!");
+        
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        alert("Error deleting user. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   return (
     <div className="pd-dashboard-container">
       {/* Animated background elements */}
@@ -170,35 +226,35 @@ function PageDetails() {
                 {/* Filter options dropdown */}
                 {showFilterDropdown && (
                   <div className="pd-filter-dropdown">
-                  <button
-                    className={`pd-filter-option ${filterBy === 'name' ? 'active' : ''}`}
-                    onClick={() => {
-                      setFilterBy('name');
-                      setShowFilterDropdown(false);
-                    }}
-                  >
-                  By Name
-                  </button>
-                  <button
-                    className={`pd-filter-option ${filterBy === 'email' ? 'active' : ''}`}
-                    onClick={() => {
-                      setFilterBy('email');
-                      setShowFilterDropdown(false);
-                    }}
-                  >
-                  By Email
-                  </button>
-                  <button
-                    className={`pd-filter-option ${filterBy === 'phone' ? 'active' : ''}`}
-                    onClick={() => {
-                      setFilterBy('phone');
-                      setShowFilterDropdown(false);
-                    }}
-                  >
-                  By Phone
-                  </button>
-              </div>
-              )}
+                    <button
+                      className={`pd-filter-option ${filterBy === 'name' ? 'active' : ''}`}
+                      onClick={() => {
+                        setFilterBy('name');
+                        setShowFilterDropdown(false);
+                      }}
+                    >
+                      By Name
+                    </button>
+                    <button
+                      className={`pd-filter-option ${filterBy === 'email' ? 'active' : ''}`}
+                      onClick={() => {
+                        setFilterBy('email');
+                        setShowFilterDropdown(false);
+                      }}
+                    >
+                      By Email
+                    </button>
+                    <button
+                      className={`pd-filter-option ${filterBy === 'phone' ? 'active' : ''}`}
+                      onClick={() => {
+                        setFilterBy('phone');
+                        setShowFilterDropdown(false);
+                      }}
+                    >
+                      By Phone
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -220,6 +276,31 @@ function PageDetails() {
               <ul className="pd-user-list slide-in-left">
                 {filteredUsers.map((user) => (
                   <li key={user.id} className="pd-user-item">
+                    {/* Action buttons container  */}
+                    <div className="pd-action-buttons">
+                      <button 
+                        className="pd-edit-button"
+                        onClick={() => handleEdit(user.id)}
+                        title="Edit User"
+                      >
+                        <svg className="pd-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      
+                      <button 
+                        className="pd-delete-button"
+                        onClick={() => handleDelete(user.id)}
+                        title="Delete User"
+                      >
+                        <svg className="pd-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+
                     {/* Profile photo */}
                     {user.profilePhotoURL && (
                       <div className="pd-image-preview">

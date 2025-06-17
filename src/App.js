@@ -8,24 +8,21 @@ import AuthForm from "./AuthForm";
 import Homepage from "./HomePage";
 import CreateForm from "./CreateForm";
 import PageDetails from "./PageDetails";
+import EditForm from "./EditForm"; 
 
 function App() {
-  // State to manage logged-in user and loading status
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Firebase auth listener to check login/logout
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false); // Stop loading once auth state is known
+      setLoading(false);
     });
 
-    // Cleanup the listener on component unmount
     return unsubscribe;
   }, []);
 
-  // Show full screen loader while checking auth state
   if (loading) {
     return (
       <div style={{
@@ -57,6 +54,10 @@ function App() {
       <Route
         path="/page-details"
         element={user ? <PageDetails /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/edit/:userId" // Dynamic route for editing
+        element={user ? <EditForm /> : <Navigate to="/login" replace />}
       />
 
       {/* Redirect root to /login */}
