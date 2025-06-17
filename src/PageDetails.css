@@ -519,3 +519,80 @@
 .pd-user-detail-value {
   flex-grow: 1;
 }
+
+/* Action buttons styling - ye CSS add kar de */
+
+.pd-user-item {
+  position: relative; /* Important: ye already exist karta hoga, ensure kar le */
+}
+
+.pd-action-buttons {
+  position: absolute;
+  top: 15px;
+  right: 0px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.pd-edit-button,
+.pd-delete-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pd-edit-button {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+}
+
+.pd-edit-button:hover {
+  background: linear-gradient(135deg, #3730a3, #5b21b6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+}
+
+.pd-delete-button {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.pd-delete-button:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.pd-action-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .pd-action-buttons {
+    top: 10px;
+    right: 10px;
+    gap: 6px;
+  }
+  
+  .pd-edit-button,
+  .pd-delete-button {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .pd-action-icon {
+    width: 16px;
+    height: 16px;
+  }
+}

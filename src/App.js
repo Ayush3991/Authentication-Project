@@ -56,7 +56,7 @@ function App() {
         element={user ? <PageDetails /> : <Navigate to="/login" replace />}
       />
       <Route
-        path="/edit/:userId" // Dynamic route for editing
+        path="/edit/:userId" // ✅ Dynamic route for editing
         element={user ? <EditForm /> : <Navigate to="/login" replace />}
       />
 

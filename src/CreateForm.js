@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaUser,FaPhone,FaVenusMars,FaEnvelope,FaFilePdf,FaCalendarAlt,FaImage} from "react-icons/fa";
+import { FaUser,FaPhone,FaBirthdayCake,FaVenusMars,FaEnvelope,FaFilePdf,FaCalendarAlt,FaImage} from "react-icons/fa";
 import { db, storage } from "./firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
